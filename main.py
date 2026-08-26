@@ -10,35 +10,55 @@ from schemas import (
     StudentResponse
 )
 
+from repositories.student_repository import StudentRepository
 from services.student_service import StudentService
+
+from auth.routes import router as auth_router
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
-        await conn.run_sync(
-            Base.metadata.create_all
-        )
+        await conn.run_sync(Base.metadata.create_all)
 
     yield
 
 
 app = FastAPI(
     title="Async Student Management API",
-    description="REST API built using FastAPI, Pydantic, SQLAlchemy and SQLite",
-    version="1.0.0",
+    version="0.1.0",
     lifespan=lifespan
 )
 
+# Authentication routes
+app.include_router(
+    auth_router,
+    tags=["Authentication"]
+)
 
-student_service = StudentService()
+
+def get_student_service(
+    db: AsyncSession = Depends(get_db)
+):
+    repository = StudentRepository(db)
+    return StudentService(repository)
 
 
 @app.get("/")
 async def root():
     return {
-        "message": "Async Student API is running"
+        "message": "Async Student Management API is running"
     }
+
+
+@app.get(
+    "/students",
+    response_model=list[StudentResponse]
+)
+async def get_students(
+    service: StudentService = Depends(get_student_service)
+):
+    return await service.get_students()
 
 
 @app.post(
@@ -48,40 +68,22 @@ async def root():
 )
 async def create_student(
     student: StudentCreate,
-    db: AsyncSession = Depends(get_db)
+    service: StudentService = Depends(get_student_service)
 ):
-    return await student_service.create_student(
-        db,
-        student
-    )
-
-
-@app.get(
-    "/students",
-    response_model=list[StudentResponse]
-)
-async def read_students(
-    db: AsyncSession = Depends(get_db)
-):
-    return await student_service.get_students(
-        db
-    )
+    return await service.create_student(student)
 
 
 @app.get(
     "/students/{student_id}",
     response_model=StudentResponse
 )
-async def read_student(
+async def get_student(
     student_id: int,
-    db: AsyncSession = Depends(get_db)
+    service: StudentService = Depends(get_student_service)
 ):
-    student = await student_service.get_student(
-        db,
-        student_id
-    )
+    student = await service.get_student(student_id)
 
-    if student is None:
+    if not student:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Student not found"
@@ -97,15 +99,14 @@ async def read_student(
 async def update_student(
     student_id: int,
     student: StudentUpdate,
-    db: AsyncSession = Depends(get_db)
+    service: StudentService = Depends(get_student_service)
 ):
-    updated_student = await student_service.update_student(
-        db,
+    updated_student = await service.update_student(
         student_id,
         student
     )
 
-    if updated_student is None:
+    if not updated_student:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Student not found"
@@ -120,14 +121,11 @@ async def update_student(
 )
 async def delete_student(
     student_id: int,
-    db: AsyncSession = Depends(get_db)
+    service: StudentService = Depends(get_student_service)
 ):
-    deleted_student = await student_service.delete_student(
-        db,
-        student_id
-    )
+    deleted = await service.delete_student(student_id)
 
-    if deleted_student is None:
+    if not deleted:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Student not found"

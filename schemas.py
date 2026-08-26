@@ -1,16 +1,18 @@
-from pydantic import BaseModel, EmailStr, ConfigDict, Field
+from pydantic import BaseModel, EmailStr
 
+
+# ---------------- STUDENT SCHEMAS ----------------
 
 class StudentCreate(BaseModel):
-    name: str = Field(min_length=2, max_length=50)
+    name: str
     email: EmailStr
-    age: int = Field(ge=1, le=100)
+    age: int
 
 
 class StudentUpdate(BaseModel):
-    name: str = Field(min_length=2, max_length=50)
-    email: EmailStr
-    age: int = Field(ge=1, le=100)
+    name: str | None = None
+    email: EmailStr | None = None
+    age: int | None = None
 
 
 class StudentResponse(BaseModel):
@@ -19,4 +21,28 @@ class StudentResponse(BaseModel):
     email: EmailStr
     age: int
 
-    model_config = ConfigDict(from_attributes=True)
+    class Config:
+        from_attributes = True
+
+
+# ---------------- AUTH SCHEMAS ----------------
+
+class UserRegister(BaseModel):
+    name: str
+    email: EmailStr
+    password: str
+
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"
+
+
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str

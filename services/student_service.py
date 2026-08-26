@@ -1,73 +1,48 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from schemas import StudentCreate, StudentUpdate
 from repositories.student_repository import StudentRepository
+from schemas import StudentCreate, StudentUpdate
+from models import Student
 
 
 class StudentService:
 
-    def __init__(self):
-        self.repository = StudentRepository()
+    def __init__(self, repository: StudentRepository):
+        self.repository = repository
 
-    async def create_student(
-        self,
-        db: AsyncSession,
-        student_data: StudentCreate
-    ):
-        return await self.repository.create_student(
-            db,
-            student_data
+    async def get_students(self):
+        return await self.repository.get_all()
+
+    async def get_student(self, student_id: int):
+        return await self.repository.get_by_id(student_id)
+
+    async def create_student(self, student: StudentCreate):
+        db_student = Student(
+            name=student.name,
+            email=student.email,
+            age=student.age
         )
+        return await self.repository.create(db_student)
 
-    async def get_student(
-        self,
-        db: AsyncSession,
-        student_id: int
-    ):
-        return await self.repository.get(
-            db,
-            student_id
-        )
+    async def update_student(self, student_id: int, student: StudentUpdate):
+        db_student = await self.repository.get_by_id(student_id)
 
-    async def get_students(
-        self,
-        db: AsyncSession
-    ):
-        return await self.repository.get_all(db)
-
-    async def update_student(
-        self,
-        db: AsyncSession,
-        student_id: int,
-        student_data: StudentUpdate
-    ):
-        student = await self.repository.get(
-            db,
-            student_id
-        )
-
-        if not student:
+        if not db_student:
             return None
 
-        return await self.repository.update_student(
-            db,
-            student,
-            student_data
-        )
+        if student.name is not None:
+            db_student.name = student.name
 
-    async def delete_student(
-        self,
-        db: AsyncSession,
-        student_id: int
-    ):
-        student = await self.repository.get(
-            db,
-            student_id
-        )
+        if student.email is not None:
+            db_student.email = student.email
 
-        if not student:
+        if student.age is not None:
+            db_student.age = student.age
+
+        return await self.repository.update(db_student)
+
+    async def delete_student(self, student_id: int):
+        db_student = await self.repository.get_by_id(student_id)
+
+        if not db_student:
             return None
 
-        await self.repository.delete(db, student)
-
-        return student
+        return await self.repository.delete(db_student)
