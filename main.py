@@ -3,13 +3,14 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-import crud
 from database import engine, Base, get_db
 from schemas import (
     StudentCreate,
     StudentUpdate,
     StudentResponse
 )
+
+from services.student_service import StudentService
 
 
 @asynccontextmanager
@@ -30,6 +31,9 @@ app = FastAPI(
 )
 
 
+student_service = StudentService()
+
+
 @app.get("/")
 async def root():
     return {
@@ -46,7 +50,7 @@ async def create_student(
     student: StudentCreate,
     db: AsyncSession = Depends(get_db)
 ):
-    return await crud.create_student(
+    return await student_service.create_student(
         db,
         student
     )
@@ -59,7 +63,9 @@ async def create_student(
 async def read_students(
     db: AsyncSession = Depends(get_db)
 ):
-    return await crud.get_students(db)
+    return await student_service.get_students(
+        db
+    )
 
 
 @app.get(
@@ -70,7 +76,7 @@ async def read_student(
     student_id: int,
     db: AsyncSession = Depends(get_db)
 ):
-    student = await crud.get_student(
+    student = await student_service.get_student(
         db,
         student_id
     )
@@ -93,7 +99,7 @@ async def update_student(
     student: StudentUpdate,
     db: AsyncSession = Depends(get_db)
 ):
-    updated_student = await crud.update_student(
+    updated_student = await student_service.update_student(
         db,
         student_id,
         student
@@ -116,7 +122,7 @@ async def delete_student(
     student_id: int,
     db: AsyncSession = Depends(get_db)
 ):
-    deleted_student = await crud.delete_student(
+    deleted_student = await student_service.delete_student(
         db,
         student_id
     )
