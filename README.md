@@ -1,74 +1,60 @@
-Async Student Management API
+\# Async Student Management API
 
 
 
-A production-style asynchronous REST API for managing student records using FastAPI, SQLAlchemy, PostgreSQL, and Pydantic.
+A RESTful API built with \*\*FastAPI, SQLAlchemy, PostgreSQL, and Pydantic\*\* for managing student records asynchronously.
 
 
 
-The project follows a clean Repository–Service architecture to separate database operations, business logic, and API routes.
+\## Features
 
 
 
-🚀 Features
+\* ✅ Create students
+
+\* ✅ Get all students
+
+\* ✅ Get student by ID
+
+\* ✅ Update students
+
+\* ✅ Delete students
+
+\* ✅ Asynchronous database operations
+
+\* ✅ PostgreSQL database integration
+
+\* ✅ Request validation with Pydantic
+
+\* ✅ Repository-Service architecture
+
+\* ✅ Interactive Swagger API documentation
 
 
 
-\* Create student records
-
-\* Retrieve all students
-
-\* Retrieve a student by ID
-
-\* Update student information
-
-\* Delete student records
-
-\* Asynchronous database operations
-
-\* PostgreSQL database integration
-
-\* Pydantic request and response validation
-
-\* Repository–Service architecture
-
-\* Automatic API documentation with Swagger UI
-
-\* Environment-based configuration
-
-\* Proper HTTP status codes and error handling
+\## Technologies
 
 
 
-🛠️ Technologies Used
+\* Python
+
+\* FastAPI
+
+\* SQLAlchemy (Async)
+
+\* PostgreSQL
+
+\* asyncpg
+
+\* Pydantic
+
+\* Uvicorn
+
+\* python-dotenv
 
 
 
-| Technology    | Purpose                       |
-
-| ------------- | ----------------------------- |
-
-| Python        | Programming language          |
-
-| FastAPI       | REST API framework            |
-
-| SQLAlchemy    | Async ORM                     |
-
-| PostgreSQL    | Relational database           |
-
-| asyncpg       | PostgreSQL async driver       |
-
-| Pydantic      | Data validation               |
-
-| Uvicorn       | ASGI server                   |
-
-| python-dotenv | Environment configuration     |
-
-| Swagger UI    | API testing and documentation |
-
-
-
-📁 Project Structure
+\## Project Structure
 
 
 
@@ -116,11 +102,7 @@ async-student-api/
 
 
 
-🏗️ Architecture
-
-
-
-The application follows a layered architecture:
+\## Architecture
 
 
 
@@ -128,69 +110,35 @@ The application follows a layered architecture:
 
 Client
 
-&#x20; ↓
+&#x20;  ↓
 
-FastAPI Routes
+FastAPI API Routes
 
-&#x20; ↓
+&#x20;  ↓
 
 Service Layer
 
-&#x20; ↓
+&#x20;  ↓
 
 Repository Layer
 
-&#x20; ↓
+&#x20;  ↓
 
 SQLAlchemy Async ORM
 
-&#x20; ↓
+&#x20;  ↓
 
-PostgreSQL Database
+PostgreSQL
 
 ```
 
 
 
-\### Repository Layer
+\## Installation
 
 
 
-Handles database operations such as:
-
-
-
-\* Creating students
-
-\* Fetching students
-
-\* Updating students
-
-\* Deleting students
-
-
-
-Service Layer
-
-
-
-Contains the application/business logic and communicates with the repository layer.
-
-
-
-API Layer
-
-
-
-FastAPI routes receive HTTP requests, validate data, call the service layer, and return responses.
-
-
-
-⚙️ Installation
-
-
-
-&#x20;1. Clone the repository
+Clone the repository:
 
 
 
@@ -204,11 +152,7 @@ cd async-student-api
 
 
 
-2\. Create a virtual environment
-
-
-
-Windows:
+Create a virtual environment:
 
 
 
@@ -220,7 +164,7 @@ python -m venv venv
 
 
 
-3\. Activate the virtual environment
+Activate it:
 
 
 
@@ -232,7 +176,7 @@ venv\\Scripts\\activate
 
 
 
-4\. Install dependencies
+Install dependencies:
 
 
 
@@ -244,15 +188,11 @@ pip install -r requirements.txt
 
 
 
-🗄️ Database Configuration
+\## Environment Configuration
 
 
 
-This project uses PostgreSQL.
-
-
-
-Create a `.env` file in the project directory:
+Create a `.env` file:
 
 
 
@@ -272,15 +212,11 @@ REFRESH\_TOKEN\_EXPIRE\_DAYS=7
 
 
 
-> Never commit `.env` files or database passwords to GitHub.
+\*\*Do not upload `.env` to GitHub.\*\*
 
 
 
-&#x20;▶️ Run the Application
-
-
-
-Start the FastAPI development server:
+\## Run the API
 
 
 
@@ -292,7 +228,7 @@ uvicorn main:app --reload
 
 
 
-The API will be available at:
+API:
 
 
 
@@ -304,11 +240,7 @@ http://127.0.0.1:8000
 
 
 
-📚 API Documentation
-
-
-
-FastAPI automatically provides interactive Swagger documentation.
+\## Swagger Documentation
 
 
 
@@ -324,19 +256,11 @@ http://127.0.0.1:8000/docs
 
 
 
-Alternative ReDoc documentation:
+Swagger UI can be used to test all CRUD operations.
 
 
 
-```text
-
-http://127.0.0.1:8000/redoc
-
-```
-
-
-
-🔗 API Endpoints
+\## API Endpoints
 
 
 
@@ -344,29 +268,29 @@ http://127.0.0.1:8000/redoc
 
 | ------ | ------------------------ | ----------------- |
 
-| GET    | `/`                      | Check API status  |
+| GET    | `/`                      | API status        |
 
-| POST   | `/students`              | Create a student  |
+| POST   | `/students`              | Create student    |
 
 | GET    | `/students`              | Get all students  |
 
 | GET    | `/students/{student\_id}` | Get student by ID |
 
-| PUT    | `/students/{student\_id}` | Update a student  |
+| PUT    | `/students/{student\_id}` | Update student    |
 
-| DELETE | `/students/{student\_id}` | Delete a student  |
-
-
-
-🧪 CRUD Testing
+| DELETE | `/students/{student\_id}` | Delete student    |
 
 
 
-The following CRUD operations were tested successfully using Swagger UI:
+\## CRUD Testing
 
 
 
-\### Create
+The API was successfully tested using Swagger UI.
+
+
+
+\### POST
 
 
 
@@ -408,7 +332,7 @@ Response:
 
 
 
-Read
+\### GET
 
 
 
@@ -426,11 +350,11 @@ GET /students/{student\_id}
 
 
 
-Update
+\### PUT
 
 
 
-Student information was successfully modified using:
+Student information was successfully updated using:
 
 
 
@@ -442,7 +366,7 @@ PUT /students/{student\_id}
 
 
 
-Delete
+\### DELETE
 
 
 
@@ -470,87 +394,47 @@ The DELETE operation returned:
 
 
 
-A subsequent GET request confirmed that the deleted student was no longer available.
+\## Learning Outcomes
 
 
 
-🔒 Security
+\* FastAPI REST API development
 
+\* Asynchronous Python
 
+\* SQLAlchemy Async ORM
 
-Sensitive configuration is stored in environment variables.
-
-
-
-The following files are excluded from Git:
-
-
-
-```text
-
-.env
-
-students.db
-
-venv/
-
-\_\_pycache\_\_/
-
-```
-
-
-
-🎯 Learning Outcomes
-
-
-
-Through this project, the following concepts were implemented:
-
-
-
-\* Asynchronous Python programming
-
-\* REST API development
-
-\* FastAPI routing and dependency injection
+\* PostgreSQL integration
 
 \* Pydantic validation
 
-\* SQLAlchemy ORM
+\* Repository-Service architecture
 
-\* PostgreSQL database connectivity
+\* CRUD implementation
 
-\* Repository pattern
+\* Swagger API testing
 
-\* Service layer architecture
-
-\* CRUD operations
-
-\* API testing using Swagger UI
-
-\* Git and GitHub version control
+\* Git and GitHub
 
 
 
-👩‍💻 Author
+\## Author
 
 
 
-Mahima M
+\*\*Mahima M\*\*
 
 
 
-GitHub:
-
-https://github.com/Mahima2005-shetty
+GitHub: https://github.com/Mahima2005-shetty
 
 
 
-📌 Project Status
+\## Project Status
 
 
 
-Completed — Async CRUD REST API successfully implemented and tested.
+\*\*Completed — Async Student Management CRUD API successfully implemented and tested.\*\*
 
 
 
