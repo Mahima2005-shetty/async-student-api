@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from models import User
+from models import User, Role
 from auth.security import (
     hash_password,
     verify_password,
@@ -31,12 +31,22 @@ class AuthService:
         if existing_user:
             raise ValueError("User already exists")
 
+        role_result = await self.db.execute(
+            select(Role).where(Role.name == "student")
+        )
+
+        student_role = role_result.scalar_one_or_none()
+
+        if not student_role:
+            raise ValueError("Default student role not found")
+
         hashed_password = hash_password(password)
 
         user = User(
             name=name,
             email=email,
-            hashed_password=hashed_password
+            hashed_password=hashed_password,
+            role_id=student_role.id
         )
 
         self.db.add(user)

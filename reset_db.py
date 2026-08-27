@@ -1,7 +1,7 @@
 import asyncio
 
 from database import engine, Base
-from models import Student, User
+from models import Student, User, Role, Permission
 
 
 async def reset_database():
@@ -15,4 +15,5 @@ async def reset_database():
     print("Database reset successfully!")
 
 
-asyncio.run(reset_database())
+if __name__ == "__main__":
+    asyncio.run(reset_database())
