@@ -1,10 +1,12 @@
 import json
 from datetime import datetime
 
+
 LOG_FILE = "event_logs.log"
 
 
 async def process_notification(event: dict):
+
     event_type = event.get("event_type")
     user_id = event.get("user_id")
     event_id = event.get("event_id")
@@ -15,9 +17,14 @@ async def process_notification(event: dict):
         data = json.loads(data)
 
     messages = {
-        "account_created": "Welcome! Your account has been created.",
-        "order_placed": "Your order has been placed successfully.",
-        "status_changed": "Your order status has been updated."
+        "account_created":
+            "Welcome! Your account has been created.",
+
+        "order_placed":
+            "Your order has been placed successfully.",
+
+        "status_changed":
+            "Your order status has been updated."
     }
 
     notification = messages.get(
@@ -33,9 +40,16 @@ async def process_notification(event: dict):
         f"notification={notification}"
     )
 
-    with open(LOG_FILE, "a", encoding="utf-8") as file:
+    with open(
+        LOG_FILE,
+        "a",
+        encoding="utf-8"
+    ) as file:
+
         file.write(log_entry + "\n")
 
-    print(f"[NOTIFICATION] {notification}")
+    print(
+        f"[NOTIFICATION] {notification}"
+    )
 
     return notification
