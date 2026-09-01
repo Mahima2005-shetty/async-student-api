@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+import asyncio
 import json
 
 from fastapi import FastAPI, Depends, HTTPException, status
@@ -21,6 +22,7 @@ from redis_client import redis_client, CACHE_TTL
 from auth.routes import router as auth_router
 from auth.dependencies import require_permission
 
+
 # ============================================================
 # DAY 7 - CELERY IMPORTS
 # ============================================================
@@ -29,6 +31,14 @@ from celery.result import AsyncResult
 
 from background_tasks.celery_app import celery_app
 from background_tasks.tasks import process_background_job
+
+
+# ============================================================
+# TASK 9 - EVENT-DRIVEN NOTIFICATION IMPORTS
+# ============================================================
+
+from events.consumer import consume_events
+from events.producer import publish_event
 
 
 # ============================================================
@@ -56,13 +66,39 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         print(f"Redis connection failed: {e}")
 
-    yield
-
     # --------------------------------------------------------
-    # Close Redis connection when application shuts down
+    # TASK 9 - START EVENT CONSUMER
     # --------------------------------------------------------
 
-    await redis_client.aclose()
+    consumer_task = asyncio.create_task(
+        consume_events(redis_client)
+    )
+
+    print("Event consumer task started!")
+
+    try:
+
+        yield
+
+    finally:
+
+        # ----------------------------------------------------
+        # STOP EVENT CONSUMER
+        # ----------------------------------------------------
+
+        consumer_task.cancel()
+
+        try:
+            await consumer_task
+
+        except asyncio.CancelledError:
+            print("Event consumer stopped.")
+
+        # ----------------------------------------------------
+        # CLOSE REDIS CONNECTION
+        # ----------------------------------------------------
+
+        await redis_client.aclose()
 
 
 # ============================================================
@@ -93,6 +129,7 @@ app.include_router(
 def get_student_service(
     db: AsyncSession = Depends(get_db)
 ):
+
     repository = StudentRepository(db)
 
     return StudentService(repository)
@@ -186,7 +223,7 @@ async def get_student(
     cache_key = f"student:{student_id}"
 
     # --------------------------------------------------------
-    # 1. CHECK REDIS CACHE
+    # CHECK REDIS CACHE
     # --------------------------------------------------------
 
     cached_student = await redis_client.get(
@@ -202,14 +239,12 @@ async def get_student(
         return json.loads(cached_student)
 
     # --------------------------------------------------------
-    # 2. CACHE MISS
+    # CACHE MISS
     # --------------------------------------------------------
 
     print(
         f"REDIS CACHE MISS: {cache_key}"
     )
-
-    # Get student from database
 
     student = await service.get_student(
         student_id
@@ -223,7 +258,7 @@ async def get_student(
         )
 
     # --------------------------------------------------------
-    # 3. CONVERT STUDENT TO DICTIONARY
+    # CONVERT STUDENT TO DICTIONARY
     # --------------------------------------------------------
 
     student_data = {
@@ -238,7 +273,7 @@ async def get_student(
     }
 
     # --------------------------------------------------------
-    # 4. STORE IN REDIS
+    # STORE IN REDIS
     # --------------------------------------------------------
 
     await redis_client.set(
@@ -252,7 +287,7 @@ async def get_student(
     )
 
     # --------------------------------------------------------
-    # 5. RETURN STUDENT
+    # RETURN STUDENT
     # --------------------------------------------------------
 
     return student
@@ -453,3 +488,41 @@ async def get_job_status(
         )
 
     return response
+
+
+# ============================================================
+# TASK 9 - EVENT REQUEST MODEL
+# ============================================================
+
+class EventRequest(BaseModel):
+
+    event_type: str
+
+    user_id: int
+
+    data: dict = {}
+
+    event_id: str | None = None
+
+
+# ============================================================
+# TASK 9 - EVENT PRODUCER
+# ============================================================
+
+@app.post(
+    "/events",
+    tags=["Event-Driven Notifications"]
+)
+async def create_event(
+    event: EventRequest
+):
+
+    result = await publish_event(
+        redis=redis_client,
+        event_type=event.event_type,
+        user_id=event.user_id,
+        data=event.data,
+        event_id=event.event_id
+    )
+
+    return result
